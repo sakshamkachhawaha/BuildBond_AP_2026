@@ -1,0 +1,72 @@
+erDiagram
+    USERS ||--o{ PROJECTS : "client"
+    USERS |o--o{ PROJECTS : "contractor"
+    PROJECTS ||--o{ MILESTONES : "has"
+    MILESTONES ||--o{ PROOFS : "has"
+    USERS ||--o{ PROOFS : "submitted_by"
+    USERS |o--o{ PROOFS : "reviewed_by"
+    PROJECTS ||--o{ LEDGER_ENTRIES : "has"
+    MILESTONES ||--o| LEDGER_ENTRIES : "release"
+    PROJECTS ||--o{ EVENTS : "logs"
+    USERS ||--o{ EVENTS : "actor"
+    PROJECTS ||--o{ DISPUTES : "has"
+    MILESTONES ||--o{ DISPUTES : "on milestone"
+    USERS ||--o{ DISPUTES : "raised_by"
+
+    USERS {
+        serial id PK
+        text name
+        text email UK
+        text password_hash
+        text role
+        timestamptz created_at
+    }
+    PROJECTS {
+        serial id PK
+        integer client_id FK
+        integer contractor_id FK
+        text title
+        integer total_paise
+        text status
+    }
+    MILESTONES {
+        serial id PK
+        integer project_id FK
+        integer position UK
+        text title
+        integer amount_paise
+        text status
+    }
+    PROOFS {
+        serial id PK
+        integer milestone_id FK
+        integer submitted_by FK
+        text url
+        text note
+        text status
+        text review_note
+        integer reviewed_by FK
+    }
+    LEDGER_ENTRIES {
+        serial id PK
+        integer project_id FK
+        integer milestone_id FK
+        text kind
+        integer amount_paise
+    }
+    EVENTS {
+        serial id PK
+        integer project_id FK
+        integer actor_id FK
+        text kind
+        text message
+        timestamptz created_at
+    }
+    DISPUTES {
+        serial id PK
+        integer project_id FK
+        integer milestone_id FK
+        integer raised_by FK
+        text reason
+        text status
+    }
