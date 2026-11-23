@@ -16,7 +16,7 @@ erDiagram
     USERS {
         serial id PK
         text name
-        text email UK
+        text email UQ
         text password_hash
         text role
         timestamptz created_at
@@ -26,16 +26,19 @@ erDiagram
         integer client_id FK
         integer contractor_id FK
         text title
+        text description
         integer total_paise
         text status
+        timestamptz created_at
     }
     MILESTONES {
         serial id PK
         integer project_id FK
-        integer position UK
+        integer position UK "unique per project"
         text title
         integer amount_paise
         text status
+        timestamptz created_at
     }
     PROOFS {
         serial id PK
@@ -46,6 +49,8 @@ erDiagram
         text status
         text review_note
         integer reviewed_by FK
+        timestamptz reviewed_at
+        timestamptz created_at
     }
     LEDGER_ENTRIES {
         serial id PK
@@ -53,6 +58,8 @@ erDiagram
         integer milestone_id FK
         text kind
         integer amount_paise
+        text note
+        timestamptz created_at
     }
     EVENTS {
         serial id PK
@@ -69,4 +76,6 @@ erDiagram
         integer raised_by FK
         text reason
         text status
+        timestamptz created_at
+        timestamptz resolved_at
     }

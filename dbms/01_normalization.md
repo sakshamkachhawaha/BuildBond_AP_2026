@@ -8,7 +8,7 @@
 
 ## 0. Notes before we start
 
-**Source of the table design.** The seven tables and their key columns come from the *Database Design* section of the BuildBond README. `server/db/schema.sql` on `main` currently contains only `users`; the other tables are listed in the README as the target design. If a column name changes when the remaining tables land in `schema.sql`, only the names here need updating, not the reasoning.
+**Source of the table design.** The starting point was the *Database Design* section of the BuildBond README, which describes the seven tables in prose. The backend has since landed, so the column lists below were checked against `server/db/schema.sql` on `main` (commit `00f0d4a`) and against the team's `dbms/03_schema.sql`, which is the same design with additional CHECK constraints. Nine columns appeared in the backend after this document was first written and are included from the 3NF step onwards: `projects.description`, `projects.created_at`, `milestones.created_at`, `proofs.created_at`, `proofs.reviewed_at`, `ledger_entries.note`, `ledger_entries.created_at`, `disputes.created_at` and `disputes.resolved_at`. None of them changes the normalization argument; each is fully determined by its table's primary key.
 
 **Sample data is illustrative.** The seed project is *Sharma Kitchen Renovation* (₹1,50,000, step 1 released, step 2 awaiting review, step 3 pending). The milestone titles, amounts and user names below are made up for the examples and add up to the real total.
 
@@ -236,21 +236,21 @@ users( id, name, email, password_hash, role, created_at )
     role ∈ {CLIENT, CONTRACTOR}
 
 projects( id, client_id [FK → users], contractor_id [FK → users, NULL until accepted],
-          title, total_paise, status )
+          title, description, total_paise, status, created_at )
     PK = id
     status ∈ {OPEN, ACTIVE, DISPUTED, COMPLETED};  CHECK contractor_id <> client_id
 
-milestones( id, project_id [FK → projects], position, title, amount_paise, status )
+milestones( id, project_id [FK → projects], position, title, amount_paise, status, created_at )
     PK = id                     candidate key = (project_id, position)
     status ∈ {PENDING, SUBMITTED, REJECTED, RELEASED}
 
 proofs( id, milestone_id [FK → milestones], submitted_by [FK → users], url, note, status,
-        review_note, reviewed_by [FK → users, NULL until reviewed] )
+        review_note, reviewed_by [FK → users, NULL until reviewed], reviewed_at, created_at )
     PK = id
     status ∈ {SUBMITTED, APPROVED, REJECTED}
 
 ledger_entries( id, project_id [FK → projects], milestone_id [FK → milestones, NULL for deposits],
-                kind, amount_paise )
+                kind, amount_paise, note, created_at )
     PK = id
     kind ∈ {DEPOSIT, RELEASE}
 
@@ -258,10 +258,22 @@ events( id, project_id [FK → projects], actor_id [FK → users], kind, message
     PK = id
 
 disputes( id, project_id [FK → projects], milestone_id [FK → milestones],
-          raised_by [FK → users], reason, status )
+          raised_by [FK → users], reason, status, created_at, resolved_at )
     PK = id
     status ∈ {OPEN, WITHDRAWN}
 ```
+
+**Conditional attributes.** Four of these columns only carry a value in one state:
+`proofs.review_note`, `proofs.reviewed_by` and `proofs.reviewed_at` are present only once a proof
+has been reviewed, and `disputes.resolved_at` is present only once a dispute is withdrawn. That is
+not a partial dependency and not a transitive one. A functional dependency needs the left side to
+determine a *value*; `proofs.status = 'APPROVED'` decides whether `reviewed_at` is NULL, but it does
+not decide what the timestamp is, and the same status holds for every reviewer and every review
+time. So the determinant stays the primary key, and the relations remain in 3NF (and in BCNF,
+subject to the `milestone_id → project_id` note in §5). The database expresses the conditional
+part with CHECK constraints rather than by splitting the tables, because a review history that
+lives in a separate relation would have to be re-joined for every read and could drift out of
+step with the row it describes.
 
 ### Sample data
 
@@ -392,9 +404,10 @@ erDiagram
     users |o--o{ projects : "contractor_id"
     projects ||--o{ milestones : "has"
     milestones ||--o{ proofs : "has"
-    users ||--o{ proofs : "submitted_by, reviewed_by"
+    users ||--o{ proofs : "submitted_by"
+    users |o--o{ proofs : "reviewed_by"
     projects ||--o{ ledger_entries : "has"
-    milestones |o--o| ledger_entries : "release"
+    milestones ||--o| ledger_entries : "release"
     projects ||--o{ events : "logs"
     users ||--o{ events : "actor_id"
     projects ||--o{ disputes : "has"
