@@ -1,0 +1,26 @@
+== Q25
+                                           QUERY PLAN                                            
+-------------------------------------------------------------------------------------------------
+ Insert on proofs  (cost=0.00..0.02 rows=0 width=0) (actual time=0.065..0.065 rows=0.00 loops=1)
+   Buffers: shared hit=22
+   ->  Result  (cost=0.00..0.02 rows=1 width=160) (actual time=0.008..0.008 rows=1.00 loops=1)
+         Buffers: shared hit=14
+ Planning Time: 0.003 ms
+ Trigger for constraint proofs_milestone_id_fkey: time=0.015 calls=1
+ Trigger for constraint proofs_submitted_by_fkey: time=0.013 calls=1
+ Trigger for constraint proofs_reviewed_by_fkey: time=0.001 calls=1
+ Execution Time: 0.096 ms
+(9 rows)
+
+                                           QUERY PLAN                                            
+-------------------------------------------------------------------------------------------------
+ Insert on events  (cost=0.00..0.02 rows=0 width=0) (actual time=0.009..0.009 rows=0.00 loops=1)
+   Buffers: shared hit=6
+   ->  Result  (cost=0.00..0.02 rows=1 width=84) (actual time=0.001..0.001 rows=1.00 loops=1)
+         Buffers: shared hit=1
+ Planning Time: 0.002 ms
+ Trigger for constraint events_project_id_fkey: time=0.012 calls=1
+ Trigger for constraint events_actor_id_fkey: time=0.011 calls=1
+ Execution Time: 0.034 ms
+(8 rows)
+

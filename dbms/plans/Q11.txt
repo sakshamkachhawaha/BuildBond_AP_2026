@@ -1,0 +1,17 @@
+== Q11
+                                                           QUERY PLAN                                                            
+---------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on disputes  (cost=12.86..21.65 rows=1 width=8) (actual time=0.004..0.004 rows=0.00 loops=1)
+   Recheck Cond: (project_id = ANY ('{1,2,3}'::integer[]))
+   Filter: (status = 'OPEN'::text)
+   Buffers: shared hit=2
+   ->  Bitmap Index Scan on disputes_project_idx  (cost=0.00..12.86 rows=3 width=0) (actual time=0.003..0.003 rows=0.00 loops=1)
+         Index Cond: (project_id = ANY ('{1,2,3}'::integer[]))
+         Index Searches: 1
+         Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=50
+ Planning Time: 0.106 ms
+ Execution Time: 0.006 ms
+(12 rows)
+

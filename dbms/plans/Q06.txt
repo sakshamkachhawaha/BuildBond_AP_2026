@@ -1,0 +1,31 @@
+== Q06
+                                                                               QUERY PLAN                                                                                
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop Left Join  (cost=0.85..33.21 rows=1 width=201) (actual time=0.009..0.010 rows=1.00 loops=1)
+   Buffers: shared hit=14
+   ->  Nested Loop  (cost=0.57..16.61 rows=1 width=189) (actual time=0.004..0.004 rows=1.00 loops=1)
+         Buffers: shared hit=8
+         ->  Index Scan using projects_pkey on projects p  (cost=0.29..8.30 rows=1 width=178) (actual time=0.001..0.001 rows=1.00 loops=1)
+               Index Cond: (id = 40)
+               Index Searches: 1
+               Buffers: shared hit=5
+         ->  Index Scan using users_pkey on users c  (cost=0.28..8.30 rows=1 width=15) (actual time=0.002..0.002 rows=1.00 loops=1)
+               Index Cond: (id = p.client_id)
+               Index Searches: 1
+               Buffers: shared hit=3
+   ->  Index Scan using users_pkey on users k  (cost=0.28..8.30 rows=1 width=15) (actual time=0.002..0.002 rows=1.00 loops=1)
+         Index Cond: (id = p.contractor_id)
+         Index Searches: 1
+         Buffers: shared hit=3
+   SubPlan 1
+     ->  Index Only Scan using ledger_entries_one_deposit_per_project on ledger_entries l  (cost=0.29..8.30 rows=1 width=0) (actual time=0.002..0.002 rows=1.00 loops=1)
+           Index Cond: (project_id = p.id)
+           Heap Fetches: 1
+           Index Searches: 1
+           Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=34
+ Planning Time: 0.078 ms
+ Execution Time: 0.014 ms
+(26 rows)
+

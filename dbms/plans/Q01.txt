@@ -1,0 +1,13 @@
+== Q01
+                                                      QUERY PLAN                                                      
+----------------------------------------------------------------------------------------------------------------------
+ Index Scan using users_pkey on users  (cost=0.28..8.30 rows=1 width=46) (actual time=0.001..0.001 rows=1.00 loops=1)
+   Index Cond: (id = 2467)
+   Index Searches: 1
+   Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=6
+ Planning Time: 0.010 ms
+ Execution Time: 0.003 ms
+(8 rows)
+
