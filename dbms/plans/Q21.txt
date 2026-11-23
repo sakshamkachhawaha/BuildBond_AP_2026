@@ -1,0 +1,13 @@
+== Q21
+                                                            QUERY PLAN                                                            
+----------------------------------------------------------------------------------------------------------------------------------
+ LockRows  (cost=0.29..8.31 rows=1 width=16) (actual time=0.002..0.002 rows=1.00 loops=1)
+   Buffers: shared hit=4
+   ->  Index Scan using projects_pkey on projects  (cost=0.29..8.30 rows=1 width=16) (actual time=0.001..0.001 rows=1.00 loops=1)
+         Index Cond: (id = 20005)
+         Index Searches: 1
+         Buffers: shared hit=3
+ Planning Time: 0.007 ms
+ Execution Time: 0.004 ms
+(8 rows)
+

@@ -1,0 +1,60 @@
+== Q44
+                                                                                                   QUERY PLAN                                                                                                   
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Result  (cost=2692.89..2692.90 rows=1 width=32) (actual time=5.968..5.969 rows=1.00 loops=1)
+   Buffers: shared hit=1004
+   InitPlan 1
+     ->  Aggregate  (cost=895.00..895.01 rows=1 width=8) (actual time=2.059..2.059 rows=1.00 loops=1)
+           Buffers: shared hit=290
+           ->  HashAggregate  (cost=695.00..845.00 rows=4000 width=4) (actual time=2.059..2.059 rows=0.00 loops=1)
+                 Group Key: ledger_entries.project_id
+                 Filter: (count(*) > 1)
+                 Batches: 1  Memory Usage: 793kB
+                 Rows Removed by Filter: 12001
+                 Buffers: shared hit=290
+                 ->  Seq Scan on ledger_entries  (cost=0.00..635.00 rows=12000 width=4) (actual time=0.003..0.938 rows=12001.00 loops=1)
+                       Filter: (kind = 'DEPOSIT'::text)
+                       Rows Removed by Filter: 15601
+                       Buffers: shared hit=290
+   InitPlan 2
+     ->  Aggregate  (cost=859.72..859.73 rows=1 width=8) (actual time=1.868..1.868 rows=1.00 loops=1)
+           Buffers: shared hit=222
+           ->  GroupAggregate  (cost=0.29..809.61 rows=4009 width=4) (actual time=1.868..1.868 rows=0.00 loops=1)
+                 Group Key: ledger_entries_1.milestone_id
+                 Filter: (count(*) > 1)
+                 Rows Removed by Filter: 15601
+                 Buffers: shared hit=222
+                 ->  Index Only Scan using ledger_entries_one_release_per_milestone on ledger_entries ledger_entries_1  (cost=0.29..581.28 rows=15600 width=4) (actual time=0.007..0.915 rows=15601.00 loops=1)
+                       Heap Fetches: 15602
+                       Index Searches: 1
+                       Buffers: shared hit=222
+   InitPlan 3
+     ->  Aggregate  (cost=891.80..891.81 rows=1 width=8) (actual time=1.930..1.930 rows=1.00 loops=1)
+           Buffers: shared hit=469
+           ->  GroupAggregate  (cost=0.29..848.46 rows=3467 width=4) (actual time=1.930..1.930 rows=0.00 loops=1)
+                 Group Key: proofs.milestone_id
+                 Filter: (count(*) > 1)
+                 Rows Removed by Filter: 10399
+                 Buffers: shared hit=469
+                 ->  Index Only Scan using proofs_one_submitted_per_milestone on proofs  (cost=0.29..666.46 rows=10400 width=4) (actual time=0.008..1.253 rows=10399.00 loops=1)
+                       Heap Fetches: 10402
+                       Index Searches: 1
+                       Buffers: shared hit=469
+   InitPlan 4
+     ->  Aggregate  (cost=46.33..46.34 rows=1 width=8) (actual time=0.110..0.110 rows=1.00 loops=1)
+           Buffers: shared hit=23
+           ->  HashAggregate  (cost=39.66..44.66 rows=133 width=4) (actual time=0.109..0.110 rows=0.00 loops=1)
+                 Group Key: disputes.milestone_id
+                 Filter: (count(*) > 1)
+                 Batches: 1  Memory Usage: 56kB
+                 Rows Removed by Filter: 400
+                 Buffers: shared hit=23
+                 ->  Seq Scan on disputes  (cost=0.00..37.66 rows=400 width=4) (actual time=0.005..0.069 rows=400.00 loops=1)
+                       Filter: (status = 'OPEN'::text)
+                       Rows Removed by Filter: 774
+                       Buffers: shared hit=23
+ Planning Time: 0.089 ms
+ Execution Time: 6.003 ms
+(54 rows)
+
+ROLLBACK

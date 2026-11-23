@@ -1,0 +1,31 @@
+== Q42
+                                                                      QUERY PLAN                                                                       
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=3168.20..3168.21 rows=5 width=16) (actual time=9.904..9.905 rows=5.00 loops=1)
+   Buffers: shared hit=1338
+   ->  Sort  (cost=3168.20..3184.87 rows=6667 width=16) (actual time=9.903..9.903 rows=5.00 loops=1)
+         Sort Key: ((COALESCE(sum(CASE WHEN (l.kind = 'DEPOSIT'::text) THEN l.amount_paise ELSE NULL::integer END), '0'::bigint))::integer) DESC, p.id
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=1338
+         ->  HashAggregate  (cost=2757.46..3057.46 rows=6667 width=16) (actual time=8.340..9.455 rows=12001.00 loops=1)
+               Group Key: p.id
+               Filter: (count(l.id) > 0)
+               Batches: 1  Memory Usage: 2329kB
+               Rows Removed by Filter: 8000
+               Buffers: shared hit=1338
+               ->  Hash Right Join  (cost=1498.00..2136.46 rows=27600 width=20) (actual time=1.582..4.991 rows=35602.00 loops=1)
+                     Hash Cond: (l.project_id = p.id)
+                     Buffers: shared hit=1338
+                     ->  Seq Scan on ledger_entries l  (cost=0.00..566.00 rows=27600 width=20) (actual time=0.002..0.914 rows=27602.00 loops=1)
+                           Buffers: shared hit=290
+                     ->  Hash  (cost=1248.00..1248.00 rows=20000 width=4) (actual time=1.577..1.577 rows=20001.00 loops=1)
+                           Buckets: 32768  Batches: 1  Memory Usage: 960kB
+                           Buffers: shared hit=1048
+                           ->  Seq Scan on projects p  (cost=0.00..1248.00 rows=20000 width=4) (actual time=0.015..0.963 rows=20001.00 loops=1)
+                                 Buffers: shared hit=1048
+ Planning:
+   Buffers: shared hit=17
+ Planning Time: 0.066 ms
+ Execution Time: 9.923 ms
+(26 rows)
+

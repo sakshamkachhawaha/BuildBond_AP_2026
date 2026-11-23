@@ -1,0 +1,24 @@
+== Q18
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Incremental Sort  (cost=13.74..53.36 rows=4 width=106) (actual time=0.007..0.007 rows=1.00 loops=1)
+   Sort Key: e.created_at, e.id
+   Presorted Key: e.created_at
+   Full-sort Groups: 1  Sort Method: quicksort  Average Memory: 25kB  Peak Memory: 25kB
+   Buffers: shared hit=9
+   ->  Nested Loop  (cost=0.57..53.18 rows=4 width=106) (actual time=0.002..0.002 rows=1.00 loops=1)
+         Buffers: shared hit=6
+         ->  Index Scan using events_project_idx on events e  (cost=0.29..19.98 rows=4 width=95) (actual time=0.001..0.001 rows=1.00 loops=1)
+               Index Cond: (project_id = 20005)
+               Index Searches: 1
+               Buffers: shared hit=3
+         ->  Index Scan using users_pkey on users u  (cost=0.28..8.30 rows=1 width=15) (actual time=0.001..0.001 rows=1.00 loops=1)
+               Index Cond: (id = e.actor_id)
+               Index Searches: 1
+               Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=34
+ Planning Time: 0.079 ms
+ Execution Time: 0.009 ms
+(19 rows)
+

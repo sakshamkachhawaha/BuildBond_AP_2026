@@ -1,0 +1,15 @@
+== Q27
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=11.31..11.32 rows=1 width=8) (actual time=0.005..0.005 rows=1.00 loops=1)
+   Buffers: shared hit=3
+   ->  Index Scan using ledger_project_idx on ledger_entries  (cost=0.29..11.29 rows=2 width=12) (actual time=0.001..0.001 rows=1.00 loops=1)
+         Index Cond: (project_id = 20005)
+         Index Searches: 1
+         Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=3
+ Planning Time: 0.029 ms
+ Execution Time: 0.011 ms
+(10 rows)
+

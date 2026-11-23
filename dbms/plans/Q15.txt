@@ -1,0 +1,11 @@
+== Q15
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using milestones_project_position_key on milestones  (cost=0.29..12.31 rows=3 width=52) (actual time=0.001..0.001 rows=2.00 loops=1)
+   Index Cond: (project_id = 20005)
+   Index Searches: 1
+   Buffers: shared hit=3
+ Planning Time: 0.007 ms
+ Execution Time: 0.002 ms
+(6 rows)
+

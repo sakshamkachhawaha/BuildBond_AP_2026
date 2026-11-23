@@ -1,0 +1,11 @@
+== Q09
+                                                                   QUERY PLAN                                                                    
+-------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using milestones_project_position_key on milestones  (cost=0.29..32.90 rows=9 width=44) (actual time=0.004..0.004 rows=9.00 loops=1)
+   Index Cond: (project_id = ANY ('{1,2,3}'::integer[]))
+   Index Searches: 1
+   Buffers: shared hit=3
+ Planning Time: 0.010 ms
+ Execution Time: 0.006 ms
+(6 rows)
+

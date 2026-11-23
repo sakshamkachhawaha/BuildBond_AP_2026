@@ -1,0 +1,17 @@
+== Q39
+                                                            QUERY PLAN                                                            
+----------------------------------------------------------------------------------------------------------------------------------
+ Update on disputes  (cost=0.28..8.30 rows=1 width=46) (actual time=0.013..0.013 rows=1.00 loops=1)
+   Buffers: shared hit=11
+   ->  Index Scan using disputes_pkey on disputes  (cost=0.28..8.30 rows=1 width=46) (actual time=0.001..0.001 rows=1.00 loops=1)
+         Index Cond: (id = 1178)
+         Filter: (status = 'OPEN'::text)
+         Index Searches: 1
+         Buffers: shared hit=3
+ Planning Time: 0.009 ms
+ Trigger for constraint disputes_project_id_fkey: time=0.009 calls=1
+ Trigger for constraint disputes_milestone_project_fkey: time=0.009 calls=1
+ Trigger for constraint disputes_raised_by_fkey: time=0.006 calls=1
+ Execution Time: 0.044 ms
+(12 rows)
+

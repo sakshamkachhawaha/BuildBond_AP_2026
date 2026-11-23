@@ -1,0 +1,17 @@
+== Q36
+SAVEPOINT
+                                             QUERY PLAN                                             
+----------------------------------------------------------------------------------------------------
+ Insert on disputes  (cost=0.00..0.02 rows=1 width=96) (actual time=0.074..0.074 rows=1.00 loops=1)
+   Buffers: shared hit=22
+   ->  Result  (cost=0.00..0.02 rows=1 width=96) (actual time=0.012..0.012 rows=1.00 loops=1)
+         Buffers: shared hit=14
+ Planning Time: 0.002 ms
+ Trigger for constraint disputes_project_id_fkey: time=0.022 calls=1
+ Trigger for constraint disputes_milestone_project_fkey: time=0.018 calls=1
+ Trigger for constraint disputes_raised_by_fkey: time=0.013 calls=1
+ Execution Time: 0.130 ms
+(9 rows)
+
+ROLLBACK
+INSERT 0 1

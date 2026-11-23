@@ -1,0 +1,16 @@
+== Q12
+SAVEPOINT
+                                             QUERY PLAN                                              
+-----------------------------------------------------------------------------------------------------
+ Insert on projects  (cost=0.00..0.02 rows=1 width=120) (actual time=0.059..0.059 rows=1.00 loops=1)
+   Buffers: shared hit=27
+   ->  Result  (cost=0.00..0.02 rows=1 width=120) (actual time=0.010..0.010 rows=1.00 loops=1)
+         Buffers: shared hit=14
+ Planning Time: 0.004 ms
+ Trigger for constraint projects_client_id_fkey: time=0.046 calls=1
+ Trigger for constraint projects_contractor_id_fkey: time=0.002 calls=1
+ Execution Time: 0.112 ms
+(8 rows)
+
+ROLLBACK
+INSERT 0 1

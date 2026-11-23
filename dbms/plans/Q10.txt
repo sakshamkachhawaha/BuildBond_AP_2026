@@ -1,0 +1,13 @@
+== Q10
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using ledger_project_idx on ledger_entries  (cost=0.29..34.75 rows=7 width=16) (actual time=0.004..0.004 rows=0.00 loops=1)
+   Index Cond: (project_id = ANY ('{1,2,3}'::integer[]))
+   Index Searches: 1
+   Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=3
+ Planning Time: 0.012 ms
+ Execution Time: 0.005 ms
+(8 rows)
+
