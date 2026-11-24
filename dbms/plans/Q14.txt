@@ -1,13 +1,13 @@
 == Q14
                                            QUERY PLAN                                            
 -------------------------------------------------------------------------------------------------
- Insert on events  (cost=0.00..0.02 rows=0 width=0) (actual time=0.067..0.067 rows=0.00 loops=1)
+ Insert on events  (cost=0.00..0.02 rows=0 width=0) (actual time=0.160..0.160 rows=0.00 loops=1)
    Buffers: shared hit=50
-   ->  Result  (cost=0.00..0.02 rows=1 width=84) (actual time=0.005..0.005 rows=1.00 loops=1)
+   ->  Result  (cost=0.00..0.02 rows=1 width=84) (actual time=0.012..0.012 rows=1.00 loops=1)
          Buffers: shared hit=14
- Planning Time: 0.002 ms
- Trigger for constraint events_project_id_fkey: time=0.015 calls=1
- Trigger for constraint events_actor_id_fkey: time=0.012 calls=1
- Execution Time: 0.096 ms
+ Planning Time: 0.004 ms
+ Trigger for constraint events_project_id_fkey: time=0.035 calls=1
+ Trigger for constraint events_actor_id_fkey: time=0.029 calls=1
+ Execution Time: 0.230 ms
 (8 rows)
 

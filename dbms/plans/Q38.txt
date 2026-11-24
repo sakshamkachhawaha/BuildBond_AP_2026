@@ -1,12 +1,12 @@
 == Q38
                                                              QUERY PLAN                                                             
 ------------------------------------------------------------------------------------------------------------------------------------
- Index Scan using disputes_project_idx on disputes  (cost=0.28..8.30 rows=1 width=126) (actual time=0.001..0.002 rows=1.00 loops=1)
+ Index Scan using disputes_project_idx on disputes  (cost=0.28..8.30 rows=1 width=126) (actual time=0.003..0.003 rows=1.00 loops=1)
    Index Cond: (project_id = 40)
    Filter: (id = 1178)
    Index Searches: 1
    Buffers: shared hit=4
- Planning Time: 0.011 ms
- Execution Time: 0.003 ms
+ Planning Time: 0.029 ms
+ Execution Time: 0.006 ms
 (7 rows)
 

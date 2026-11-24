@@ -9,7 +9,7 @@
          Buffers: shared hit=3
  Planning:
    Buffers: shared hit=3
- Planning Time: 0.029 ms
- Execution Time: 0.011 ms
+ Planning Time: 0.033 ms
+ Execution Time: 0.014 ms
 (10 rows)
 

@@ -1,12 +1,12 @@
 == Q22
                                                                           QUERY PLAN                                                                           
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
- Index Only Scan using ledger_entries_one_deposit_per_project on ledger_entries  (cost=0.29..8.30 rows=1 width=4) (actual time=0.003..0.003 rows=0.00 loops=1)
+ Index Only Scan using ledger_entries_one_deposit_per_project on ledger_entries  (cost=0.29..8.30 rows=1 width=4) (actual time=0.009..0.009 rows=0.00 loops=1)
    Index Cond: (project_id = 20005)
    Heap Fetches: 0
    Index Searches: 1
    Buffers: shared hit=2
- Planning Time: 0.011 ms
- Execution Time: 0.004 ms
+ Planning Time: 0.022 ms
+ Execution Time: 0.012 ms
 (7 rows)
 

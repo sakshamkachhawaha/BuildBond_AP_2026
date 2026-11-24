@@ -1,27 +1,27 @@
 == Q34
                                                                           QUERY PLAN                                                                          
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
- Update on proofs  (cost=8.63..16.65 rows=1 width=82) (actual time=0.037..0.042 rows=1.00 loops=1)
+ Update on proofs  (cost=8.63..16.65 rows=1 width=82) (actual time=0.109..0.110 rows=1.00 loops=1)
    Buffers: shared hit=22
    InitPlan 1
-     ->  Limit  (cost=8.32..8.34 rows=1 width=12) (actual time=0.005..0.005 rows=1.00 loops=1)
+     ->  Limit  (cost=8.32..8.34 rows=1 width=12) (actual time=0.022..0.022 rows=1.00 loops=1)
            Buffers: shared hit=5
-           ->  Incremental Sort  (cost=8.32..8.36 rows=2 width=12) (actual time=0.005..0.005 rows=1.00 loops=1)
+           ->  Incremental Sort  (cost=8.32..8.36 rows=2 width=12) (actual time=0.021..0.021 rows=1.00 loops=1)
                  Sort Key: proofs_1.created_at DESC, proofs_1.id DESC
                  Presorted Key: proofs_1.created_at
                  Full-sort Groups: 1  Sort Method: quicksort  Average Memory: 25kB  Peak Memory: 25kB
                  Buffers: shared hit=5
-                 ->  Index Scan using proofs_milestone_idx on proofs proofs_1  (cost=0.29..8.31 rows=1 width=12) (actual time=0.002..0.004 rows=1.00 loops=1)
+                 ->  Index Scan using proofs_milestone_idx on proofs proofs_1  (cost=0.29..8.31 rows=1 width=12) (actual time=0.011..0.018 rows=1.00 loops=1)
                        Index Cond: (milestone_id = 119)
                        Filter: (status = 'SUBMITTED'::text)
                        Index Searches: 1
                        Buffers: shared hit=5
-   ->  Index Scan using proofs_pkey on proofs  (cost=0.29..8.31 rows=1 width=82) (actual time=0.007..0.012 rows=1.00 loops=1)
+   ->  Index Scan using proofs_pkey on proofs  (cost=0.29..8.31 rows=1 width=82) (actual time=0.031..0.031 rows=1.00 loops=1)
          Index Cond: (id = (InitPlan 1).col1)
          Index Searches: 1
          Buffers: shared hit=10
- Planning Time: 0.022 ms
- Trigger for constraint proofs_reviewed_by_fkey: time=0.010 calls=1
- Execution Time: 0.058 ms
+ Planning Time: 0.047 ms
+ Trigger for constraint proofs_reviewed_by_fkey: time=0.033 calls=1
+ Execution Time: 0.158 ms
 (22 rows)
 
