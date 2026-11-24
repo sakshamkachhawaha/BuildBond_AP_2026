@@ -6,10 +6,11 @@
 #
 # What it does, in order:
 #   1. recreates the database and seeds it at the small scale (1,200 projects)
-#   2. warm-up run, then 3 measured runs of dbms/plans.sql, median per query
+#   2. warm-up run, then 3 measured runs of dbms/plans.sql, every run recorded
 #   3. repeats at the large scale (20,000 projects)
 #   4. splits the large-scale plans into dbms/plans/Q01.txt ... Q44.txt
-#   5. writes dbms/results/timings_cp4.csv and dbms/05_query_timings.md
+#   5. writes dbms/results/timings_cp4.csv (each run and the average) and
+#      dbms/05_query_timings.md
 #
 # Every number in the report comes from this run, on this machine. Nothing is
 # copied from anywhere else.
@@ -30,6 +31,14 @@ PSQL="${PSQL:-psql}"
 SMALL="${SMALL:-1200}"
 LARGE="${LARGE:-20000}"
 RUNS="${RUNS:-3}"
+
+# The report has three run columns per scale, so the measurement must produce
+# exactly three. Keeping the variable but pinning it makes that expectation
+# explicit instead of silently dropping a run.
+if [ "$RUNS" -ne 3 ]; then
+  echo "RUNS must be 3: the report shows Run 1, Run 2, Run 3 and Average." >&2
+  exit 1
+fi
 
 if ! command -v "$PSQL" >/dev/null 2>&1; then
   for candidate in /Applications/Postgres.app/Contents/Versions/18/bin/psql \
@@ -107,14 +116,20 @@ measure() {
     ' "$TMP/plans_${scale}_run${r}.txt" >>"$TMP/all_${scale}.csv"
   done
 
-  # median across runs (with 3 runs, the middle value)
-  sort -t, -k1,1 -k3,3n "$TMP/all_${scale}.csv" \
-    | awk -F, -v keep="$(( (RUNS + 1) / 2 ))" '
-        { c[$1]++; if (c[$1] == keep) printf "%s,%.3f\n", $1, $3 }
-      ' >"$TMP/t_${scale}.csv"
+  # One row per statement: run 1, run 2, run 3 and their arithmetic mean.
+  # all_<scale>.csv is q,run,ms, appended one complete pass at a time, so
+  # sorting by statement then run lines the three values up.
+  sort -t, -k1,1 -k2,2n "$TMP/all_${scale}.csv" | awk -F, '
+    function emit() {
+      if (q != "") printf "%s,%.3f,%.3f,%.3f,%.3f\n", q, r[1], r[2], r[3], (r[1] + r[2] + r[3]) / 3
+    }
+    $1 != q { emit(); q = $1; delete r }
+    { r[$2] = $3 }
+    END { emit() }
+  ' >"$TMP/runs_${scale}.csv"
 
   cp "$TMP/plans_${scale}_run1.txt" "$TMP/plans_${scale}.txt"
-  echo "== scale $scale: $(wc -l <"$TMP/t_${scale}.csv" | tr -d ' ') queries measured"
+  echo "== scale $scale: $(wc -l <"$TMP/runs_${scale}.csv" | tr -d ' ') queries measured"
 }
 
 measure "$SMALL"
@@ -164,20 +179,18 @@ for f in "$ROOT"/dbms/plans/Q*.txt; do
       key = "bis:" n
       if (!(key in seeni)) { seeni[key] = 1; idx = idx (idx == "" ? "" : "+") n }
     }
-    END { printf "%s|%s|%s|%s\n", id, top, seq, idx }
+    END { gsub(/,/, ";", top); printf "%s,%s,%s\n", id, top, (seq == "" ? "none" : seq) }
   ' "$f" >>"$TMP/facts.csv"
 done
 
 # ---------------------------------------------------------------------
-# Join both scales with the plan facts and the READ/WRITE label
+# Join both scales, the plan facts and the READ/WRITE label
 # ---------------------------------------------------------------------
-awk -F, 'NR==FNR { small[$1] = $2; next } { large[$1] = $2 } END {
-  for (q in large) printf "%s,%s,%s\n", q, (q in small ? small[q] : "0"), large[q]
-}' "$TMP/t_${SMALL}.csv" "$TMP/t_${LARGE}.csv" | sort >"$TMP/growth.csv"
-
-awk -F'|' 'NR==FNR { split($0, a, ","); s[a[1]] = a[2]; g[a[1]] = a[3]; next }
-            { printf "%s,%s,%s,%s,%s,%s\n", $1, s[$1], g[$1], $2, $3, $4 }' \
-    "$TMP/growth.csv" "$TMP/facts.csv" | sort >"$TMP/table.csv"
+# both.csv: q, small run 1-3, small average, large run 1-3, large average
+awk -F, '
+  NR==FNR { s1[$1] = $2; s2[$1] = $3; s3[$1] = $4; sa[$1] = $5; next }
+  { printf "%s,%s,%s,%s,%s,%s,%s,%s,%s\n", $1, s1[$1], s2[$1], s3[$1], sa[$1], $2, $3, $4, $5 }
+' "$TMP/runs_${SMALL}.csv" "$TMP/runs_${LARGE}.csv" | sort >"$TMP/both.csv"
 
 awk '
   /^-- Q[0-9][0-9]  READ/  { id = substr($0, 4, 3); k[id] = "READ";  next }
@@ -185,12 +198,23 @@ awk '
   END { for (q in k) printf "%s,%s\n", q, k[q] }
 ' "$ROOT/dbms/04_queries.sql" | sort >"$TMP/kind.csv"
 
+# enriched.csv: q, kind, small run 1-3, small average, large run 1-3,
+# large average, growth (large average / small average)
 awk -F, 'NR==FNR { kind[$1] = $2; next }
-         { printf "%s,%s,%s,%s,%s,%s,%s\n", $1, kind[$1], $2, $3,
-                  ($2 > 0 ? sprintf("%.1f", $3 / $2) : "-"), $4, ($5 == "" ? "none" : $5) }' \
-    "$TMP/kind.csv" "$TMP/table.csv" | sort >"$TMP/report_table.csv"
+         { g = ($5 > 0 ? sprintf("%.1f", $9 / $5) : "-")
+           printf "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+                  $1, kind[$1], $2, $3, $4, $5, $6, $7, $8, $9, g }' \
+    "$TMP/kind.csv" "$TMP/both.csv" | sort >"$TMP/enriched.csv"
 
-echo "query,kind,ms_small,ms_large,growth,top_node,seq_scans" >"$ROOT/dbms/results/timings_cp4.csv"
+# report_table.csv: q, kind, small runs 1-3, small average, large runs 1-3,
+# large average, growth, top node, sequential-scan tables
+awk -F, 'NR==FNR { top[$1] = $2; seq[$1] = $3; next }
+         { printf "%s,%s,%s\n", $0, top[$1], seq[$1] }' \
+    "$TMP/facts.csv" "$TMP/enriched.csv" | sort >"$TMP/report_table.csv"
+
+printf 'query,kind,run1_%s,run2_%s,run3_%s,avg_%s,run1_%s,run2_%s,run3_%s,avg_%s,growth,top_node,seq_scans\n' \
+  "$SMALL" "$SMALL" "$SMALL" "$SMALL" "$LARGE" "$LARGE" "$LARGE" "$LARGE" \
+  >"$ROOT/dbms/results/timings_cp4.csv"
 cat "$TMP/report_table.csv" >>"$ROOT/dbms/results/timings_cp4.csv"
 
 # ---------------------------------------------------------------------
@@ -211,39 +235,50 @@ TOTAL_LARGE="$(awk -F, '{ s += $2 } END { print s }' "$TMP/rows_${LARGE}.csv")"
 DATA_RATIO="$(awk -v a="$TOTAL_LARGE" -v b="$TOTAL_SMALL" 'BEGIN { printf "%.1f", a / b }')"
 PROJECT_RATIO="$(awk -v a="$LARGE" -v b="$SMALL" 'BEGIN { printf "%.1f", a / b }')"
 
-SLOWEST="$(sort -t, -k4,4gr "$TMP/app.csv" | head -1)"
+SLOWEST="$(sort -t, -k10,10gr "$TMP/app.csv" | head -1)"
 SLOWEST_Q="$(echo "$SLOWEST" | cut -d, -f1)"
-SLOWEST_MS="$(echo "$SLOWEST" | cut -d, -f4)"
-SLOWEST_TOP="$(echo "$SLOWEST" | cut -d, -f6)"
-FASTEST="$(sort -t, -k4,4g "$TMP/app.csv" | head -1)"
+SLOWEST_MS="$(echo "$SLOWEST" | cut -d, -f10)"
+SLOWEST_TOP="$(echo "$SLOWEST" | cut -d, -f12)"
+FASTEST="$(sort -t, -k10,10g "$TMP/app.csv" | head -1)"
 FASTEST_Q="$(echo "$FASTEST" | cut -d, -f1)"
-FASTEST_MS="$(echo "$FASTEST" | cut -d, -f4)"
-BG="$(awk -F, '$5 != "-"' "$TMP/app.csv" | sort -t, -k5,5gr | head -1)"
+FASTEST_MS="$(echo "$FASTEST" | cut -d, -f10)"
+BG="$(awk -F, '$11 != "-"' "$TMP/app.csv" | sort -t, -k11,11gr | head -1)"
 BG_Q="$(echo "$BG" | cut -d, -f1)"
-BG_RATIO="$(echo "$BG" | cut -d, -f5)"
-OVER_1MS="$(awk -F, '$4 > 1' "$TMP/app.csv" | wc -l | tr -d ' ')"
-OVER_10MS="$(awk -F, '$4 > 10' "$TMP/app.csv" | wc -l | tr -d ' ')"
+BG_RATIO="$(echo "$BG" | cut -d, -f11)"
+OVER_1MS="$(awk -F, '$10 > 1' "$TMP/app.csv" | wc -l | tr -d ' ')"
+OVER_10MS="$(awk -F, '$10 > 10' "$TMP/app.csv" | wc -l | tr -d ' ')"
 if [ "$OVER_1MS" = "1" ]; then V1=takes; N1=statement; else V1=take; N1=statements; fi
 if [ "$OVER_10MS" = "1" ]; then V10=takes; else V10=take; fi
-READ_AVG="$(awk -F, '$2 == "READ" && $5 != "-" { s += $5; n++ } END { printf "%.1f", s / n }' "$TMP/app.csv")"
-WRITE_AVG="$(awk -F, '$2 == "WRITE" && $5 != "-" { s += $5; n++ } END { printf "%.1f", s / n }' "$TMP/app.csv")"
-SEQ_QUERIES="$(awk -F, '$7 != "none" { printf "%s ", $1 }' "$TMP/report_table.csv" | sed 's/ $//')"
-AUDIT_SLOW="$(sort -t, -k4,4gr "$TMP/audit.csv" | head -1)"
+READ_AVG="$(awk -F, '$2 == "READ" && $11 != "-" { s += $11; n++ } END { printf "%.1f", s / n }' "$TMP/app.csv")"
+WRITE_AVG="$(awk -F, '$2 == "WRITE" && $11 != "-" { s += $11; n++ } END { printf "%.1f", s / n }' "$TMP/app.csv")"
+SEQ_QUERIES="$(awk -F, '$13 != "none" { printf "%s ", $1 }' "$TMP/report_table.csv" | sed 's/ $//')"
+AUDIT_SLOW="$(sort -t, -k10,10gr "$TMP/audit.csv" | head -1)"
 AUDIT_Q="$(echo "$AUDIT_SLOW" | cut -d, -f1)"
-AUDIT_MS="$(echo "$AUDIT_SLOW" | cut -d, -f4)"
+AUDIT_MS="$(echo "$AUDIT_SLOW" | cut -d, -f10)"
 PLAN_COUNT="$(ls "$ROOT"/dbms/plans/Q*.txt | wc -l | tr -d ' ')"
 
 # ---------------------------------------------------------------------
 # Markdown table
 # ---------------------------------------------------------------------
+# Large scale: the run that matters for scaling, with all three passes.
 {
-  echo "| # | Kind | $SMALL projects | $LARGE projects | Growth | Plan (top node) | Seq Scan |"
-  echo "|---|---|---:|---:|---:|---|---|"
-  while IFS=, read -r q k a b g top seq; do
-    printf "| [%s](plans/%s.txt) | %s | %s ms | %s ms | %s× | %s | %s |\n" \
-      "$q" "$q" "$k" "$a" "$b" "$g" "$top" "${seq/none/—}"
+  echo "| # | Kind | Run 1 (ms) | Run 2 (ms) | Run 3 (ms) | Average (ms) | Growth | Plan (top node) | Seq Scan |"
+  echo "|---|---|---:|---:|---:|---:|---:|---|---|"
+  while IFS=, read -r q k s1 s2 s3 sa l1 l2 l3 la g top seq; do
+    printf "| [%s](plans/%s.txt) | %s | %s | %s | %s | %s | %s× | %s | %s |\n" \
+      "$q" "$q" "$k" "$l1" "$l2" "$l3" "$la" "$g" "$top" "${seq/none/—}"
   done <"$TMP/report_table.csv"
-} >"$TMP/table.md"
+} >"$TMP/table_large.md"
+
+# Baseline scale: same three runs, so both tables answer the same question.
+{
+  echo "| # | Kind | Run 1 (ms) | Run 2 (ms) | Run 3 (ms) | Average (ms) |"
+  echo "|---|---|---:|---:|---:|---:|"
+  while IFS=, read -r q k s1 s2 s3 sa l1 l2 l3 la g top seq; do
+    printf "| %s | %s | %s | %s | %s | %s |\n" \
+      "$q" "$k" "$s1" "$s2" "$s3" "$sa"
+  done <"$TMP/report_table.csv"
+} >"$TMP/table_small.md"
 
 {
   echo "| Table | $SMALL projects | $LARGE projects |"
@@ -277,7 +312,7 @@ these queries behave at these two sizes. They do not predict production.
 | Machine | $CPU, ${MEM_GB} GB RAM |
 | Client | \`psql\` from the same installation as the server |
 | Database | \`$DB\`, schema from \`dbms/03_schema.sql\` |
-| Runs per statement | $RUNS measured runs, median, after one discarded warm-up run |
+| Runs per statement | $RUNS measured runs, each shown, with their arithmetic mean; one warm-up run is discarded |
 | Row counts | see the table below |
 
 ### Data volume
@@ -293,11 +328,11 @@ Timestamps in the seed are IST and the session runs with
 
 1. drops and recreates the database, applies \`dbms/03_schema.sql\`, and loads
    \`dbms/seed_ap.sql\` at $SMALL projects;
-2. runs the whole workload once to warm the cache, then $RUNS times, keeping the
-   median execution time per statement;
+2. runs the whole workload once to warm the cache, then $RUNS times, recording
+   every run and computing the arithmetic mean per statement;
 3. repeats at $LARGE projects;
 4. writes one plan per statement into \`dbms/plans/\` ($PLAN_COUNT files) and the
-   numbers behind the table into \`dbms/results/timings_cp4.csv\`.
+   numbers behind the tables into \`dbms/results/timings_cp4.csv\`.
 
 \`dbms/plans.sql\` is generated from \`04_queries.sql\` by
 \`dbms/make_plans_sql.py\`. It wraps every statement in
@@ -314,15 +349,25 @@ Two numbers are worth keeping apart. The times here are the server's
 \`Execution Time\` from \`EXPLAIN (ANALYZE)\`, which excludes the client round
 trip. \`dbms/results/timings_1200.csv\`, written by \`run_queries.sh\`, comes from
 psql's \`\\timing\` and therefore includes that round trip, which is why the same
-statement can read ~0.9 ms there and ~0.05 ms here. Both are correct; they
-measure different things.
+statement can read around a millisecond there and a few hundredths of a
+millisecond here. Both are correct; they measure different things.
 
 ## 3. Every statement
 
-$(cat "$TMP/table.md")
+Each statement was measured three times at each scale. The tables below show
+the three runs and their arithmetic mean; nothing is averaged away.
 
-Growth is large ÷ small. A dash means the small-scale time was under the
-timer's 0.001 ms resolution, so a ratio would be noise.
+### 3.1 $LARGE projects — three measured runs
+
+$(cat "$TMP/table_large.md")
+
+### 3.2 $SMALL projects — baseline, three measured runs
+
+$(cat "$TMP/table_small.md")
+
+Growth in 3.1 is the large-scale average ÷ the small-scale average. A dash means
+the small-scale average was under the timer's 0.001 ms resolution, so a ratio
+would be noise.
 
 Each file in \`dbms/plans/\` is the full \`EXPLAIN (ANALYZE, BUFFERS)\` output for
 that statement at $LARGE projects: the node tree, estimated versus actual rows,
@@ -331,10 +376,10 @@ disk.
 
 ## 4. What the numbers say
 
-At $LARGE projects the slowest application statement is **$SLOWEST_Q at
-$SLOWEST_MS ms** ($SLOWEST_TOP), and the fastest is **$FASTEST_Q at
-$FASTEST_MS ms**. Only $OVER_1MS $N1 $V1 more than 1 ms and $OVER_10MS $V10 more
-than 10 ms. That is the honest way to read the table: apart from those, the
+Averaging the three runs at $LARGE projects, the slowest application statement
+is **$SLOWEST_Q at $SLOWEST_MS ms** ($SLOWEST_TOP), and the fastest is
+**$FASTEST_Q at $FASTEST_MS ms**. Among the application statements, $OVER_1MS $N1
+$V1 more than 1 ms and $OVER_10MS $V10 more than 10 ms. That is the honest way to read the table: apart from those, the
 statements are point lookups, and they would need a table far larger than this
 one before they became interesting.
 
@@ -351,8 +396,8 @@ statement is in that position, and section 5 is about it.
 
 ## 5. The one that costs real time: the jobs board
 
-Q04 (\`GET /api/jobs\`) takes $SLOWEST_MS ms at $LARGE projects, which is more than
-every other application statement combined. Its plan is
+Q04 (\`GET /api/jobs\`) takes $SLOWEST_MS ms on average at $LARGE projects, which is
+more than every other application statement combined. Its plan is
 \`dbms/plans/Q04.txt\`; read it from the bottom up:
 
 * \`projects_open_idx\` is a partial index on \`(created_at DESC)\` restricted to

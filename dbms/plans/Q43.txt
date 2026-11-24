@@ -1,20 +1,20 @@
 == Q43
                                                                                QUERY PLAN                                                                               
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Aggregate  (cost=247921.49..247921.50 rows=1 width=8) (actual time=15.639..15.639 rows=1.00 loops=1)
+ Aggregate  (cost=248178.71..248178.72 rows=1 width=8) (actual time=32.863..32.864 rows=1.00 loops=1)
    Buffers: shared hit=63094
-   ->  Seq Scan on projects p  (cost=0.00..247871.74 rows=19900 width=0) (actual time=15.638..15.638 rows=0.00 loops=1)
+   ->  Seq Scan on projects p  (cost=0.00..248128.96 rows=19900 width=0) (actual time=32.861..32.862 rows=0.00 loops=1)
          Filter: (total_paise <> (SubPlan 1))
          Rows Removed by Filter: 20001
          Buffers: shared hit=63094
          SubPlan 1
-           ->  Aggregate  (cost=12.32..12.33 rows=1 width=8) (actual time=0.001..0.001 rows=1.00 loops=20001)
+           ->  Aggregate  (cost=12.33..12.34 rows=1 width=8) (actual time=0.001..0.001 rows=1.00 loops=20001)
                  Buffers: shared hit=62046
-                 ->  Index Scan using milestones_project_position_key on milestones  (cost=0.29..12.31 rows=3 width=4) (actual time=0.000..0.000 rows=3.00 loops=20001)
+                 ->  Index Scan using milestones_project_position_key on milestones  (cost=0.29..12.32 rows=3 width=4) (actual time=0.001..0.001 rows=3.00 loops=20001)
                        Index Cond: (project_id = p.id)
                        Index Searches: 20001
                        Buffers: shared hit=62046
- Planning Time: 0.034 ms
- Execution Time: 15.656 ms
+ Planning Time: 0.072 ms
+ Execution Time: 32.906 ms
 (15 rows)
 

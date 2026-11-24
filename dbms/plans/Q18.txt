@@ -1,14 +1,14 @@
 == Q18
                                                                   QUERY PLAN                                                                  
 ----------------------------------------------------------------------------------------------------------------------------------------------
- Incremental Sort  (cost=13.74..53.36 rows=4 width=106) (actual time=0.007..0.007 rows=1.00 loops=1)
+ Incremental Sort  (cost=13.73..53.33 rows=4 width=106) (actual time=0.019..0.020 rows=1.00 loops=1)
    Sort Key: e.created_at, e.id
    Presorted Key: e.created_at
    Full-sort Groups: 1  Sort Method: quicksort  Average Memory: 25kB  Peak Memory: 25kB
    Buffers: shared hit=9
-   ->  Nested Loop  (cost=0.57..53.18 rows=4 width=106) (actual time=0.002..0.002 rows=1.00 loops=1)
+   ->  Nested Loop  (cost=0.57..53.15 rows=4 width=106) (actual time=0.006..0.006 rows=1.00 loops=1)
          Buffers: shared hit=6
-         ->  Index Scan using events_project_idx on events e  (cost=0.29..19.98 rows=4 width=95) (actual time=0.001..0.001 rows=1.00 loops=1)
+         ->  Index Scan using events_project_idx on events e  (cost=0.29..19.95 rows=4 width=95) (actual time=0.003..0.003 rows=1.00 loops=1)
                Index Cond: (project_id = 20005)
                Index Searches: 1
                Buffers: shared hit=3
@@ -18,7 +18,7 @@
                Buffers: shared hit=3
  Planning:
    Buffers: shared hit=34
- Planning Time: 0.079 ms
- Execution Time: 0.009 ms
+ Planning Time: 0.203 ms
+ Execution Time: 0.027 ms
 (19 rows)
 

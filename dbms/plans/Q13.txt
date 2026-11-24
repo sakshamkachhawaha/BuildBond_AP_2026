@@ -1,23 +1,23 @@
 == Q13
                                              QUERY PLAN                                              
 -----------------------------------------------------------------------------------------------------
- Insert on milestones  (cost=0.00..0.02 rows=0 width=0) (actual time=0.046..0.047 rows=0.00 loops=1)
+ Insert on milestones  (cost=0.00..0.02 rows=0 width=0) (actual time=0.113..0.113 rows=0.00 loops=1)
    Buffers: shared hit=28
-   ->  Result  (cost=0.00..0.02 rows=1 width=88) (actual time=0.008..0.008 rows=1.00 loops=1)
+   ->  Result  (cost=0.00..0.02 rows=1 width=88) (actual time=0.016..0.016 rows=1.00 loops=1)
          Buffers: shared hit=14
- Planning Time: 0.002 ms
- Trigger for constraint milestones_project_id_fkey: time=0.020 calls=1
- Execution Time: 0.069 ms
+ Planning Time: 0.004 ms
+ Trigger for constraint milestones_project_id_fkey: time=0.046 calls=1
+ Execution Time: 0.165 ms
 (7 rows)
 
                                              QUERY PLAN                                              
 -----------------------------------------------------------------------------------------------------
- Insert on milestones  (cost=0.00..0.02 rows=0 width=0) (actual time=0.012..0.013 rows=0.00 loops=1)
+ Insert on milestones  (cost=0.00..0.02 rows=0 width=0) (actual time=0.022..0.022 rows=0.00 loops=1)
    Buffers: shared hit=8
    ->  Result  (cost=0.00..0.02 rows=1 width=88) (actual time=0.001..0.001 rows=1.00 loops=1)
          Buffers: shared hit=1
- Planning Time: 0.002 ms
- Trigger for constraint milestones_project_id_fkey: time=0.009 calls=1
- Execution Time: 0.024 ms
+ Planning Time: 0.004 ms
+ Trigger for constraint milestones_project_id_fkey: time=0.020 calls=1
+ Execution Time: 0.046 ms
 (7 rows)
 

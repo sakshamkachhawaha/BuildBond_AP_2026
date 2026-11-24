@@ -1,27 +1,27 @@
 == Q41
                                                             QUERY PLAN                                                            
 ----------------------------------------------------------------------------------------------------------------------------------
- Update on projects  (cost=0.29..8.30 rows=0 width=0) (actual time=0.015..0.015 rows=0.00 loops=1)
+ Update on projects  (cost=0.29..8.30 rows=0 width=0) (actual time=0.030..0.030 rows=0.00 loops=1)
    Buffers: shared hit=18
-   ->  Index Scan using projects_pkey on projects  (cost=0.29..8.30 rows=1 width=38) (actual time=0.001..0.001 rows=1.00 loops=1)
+   ->  Index Scan using projects_pkey on projects  (cost=0.29..8.30 rows=1 width=38) (actual time=0.003..0.003 rows=1.00 loops=1)
          Index Cond: (id = 40)
          Index Searches: 1
          Buffers: shared hit=6
- Planning Time: 0.006 ms
- Trigger for constraint projects_client_id_fkey: time=0.007 calls=1
- Trigger for constraint projects_contractor_id_fkey: time=0.006 calls=1
- Execution Time: 0.031 ms
+ Planning Time: 0.011 ms
+ Trigger for constraint projects_client_id_fkey: time=0.017 calls=1
+ Trigger for constraint projects_contractor_id_fkey: time=0.016 calls=1
+ Execution Time: 0.066 ms
 (10 rows)
 
                                            QUERY PLAN                                            
 -------------------------------------------------------------------------------------------------
- Insert on events  (cost=0.00..0.02 rows=0 width=0) (actual time=0.007..0.007 rows=0.00 loops=1)
+ Insert on events  (cost=0.00..0.02 rows=0 width=0) (actual time=0.014..0.014 rows=0.00 loops=1)
    Buffers: shared hit=6
    ->  Result  (cost=0.00..0.02 rows=1 width=84) (actual time=0.001..0.001 rows=1.00 loops=1)
          Buffers: shared hit=1
- Planning Time: 0.002 ms
- Trigger for constraint events_project_id_fkey: time=0.004 calls=1
- Trigger for constraint events_actor_id_fkey: time=0.002 calls=1
- Execution Time: 0.015 ms
+ Planning Time: 0.004 ms
+ Trigger for constraint events_project_id_fkey: time=0.008 calls=1
+ Trigger for constraint events_actor_id_fkey: time=0.004 calls=1
+ Execution Time: 0.029 ms
 (8 rows)
 

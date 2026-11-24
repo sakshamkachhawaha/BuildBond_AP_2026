@@ -1,25 +1,25 @@
 == Q23
                                                QUERY PLAN                                                
 ---------------------------------------------------------------------------------------------------------
- Insert on ledger_entries  (cost=0.00..0.02 rows=0 width=0) (actual time=0.044..0.044 rows=0.00 loops=1)
+ Insert on ledger_entries  (cost=0.00..0.02 rows=0 width=0) (actual time=0.124..0.124 rows=0.00 loops=1)
    Buffers: shared hit=22
-   ->  Result  (cost=0.00..0.02 rows=1 width=88) (actual time=0.009..0.009 rows=1.00 loops=1)
+   ->  Result  (cost=0.00..0.02 rows=1 width=88) (actual time=0.024..0.025 rows=1.00 loops=1)
          Buffers: shared hit=14
- Planning Time: 0.002 ms
- Trigger for constraint ledger_entries_project_id_fkey: time=0.013 calls=1
- Trigger for constraint ledger_entries_milestone_project_fkey: time=0.002 calls=1
- Execution Time: 0.062 ms
+ Planning Time: 0.007 ms
+ Trigger for constraint ledger_entries_project_id_fkey: time=0.057 calls=1
+ Trigger for constraint ledger_entries_milestone_project_fkey: time=0.005 calls=1
+ Execution Time: 0.194 ms
 (8 rows)
 
                                            QUERY PLAN                                            
 -------------------------------------------------------------------------------------------------
- Insert on events  (cost=0.00..0.02 rows=0 width=0) (actual time=0.007..0.007 rows=0.00 loops=1)
+ Insert on events  (cost=0.00..0.02 rows=0 width=0) (actual time=0.016..0.017 rows=0.00 loops=1)
    Buffers: shared hit=6
-   ->  Result  (cost=0.00..0.02 rows=1 width=84) (actual time=0.001..0.001 rows=1.00 loops=1)
+   ->  Result  (cost=0.00..0.02 rows=1 width=84) (actual time=0.002..0.002 rows=1.00 loops=1)
          Buffers: shared hit=1
- Planning Time: 0.002 ms
- Trigger for constraint events_project_id_fkey: time=0.009 calls=1
- Trigger for constraint events_actor_id_fkey: time=0.006 calls=1
- Execution Time: 0.025 ms
+ Planning Time: 0.005 ms
+ Trigger for constraint events_project_id_fkey: time=0.023 calls=1
+ Trigger for constraint events_actor_id_fkey: time=0.017 calls=1
+ Execution Time: 0.062 ms
 (8 rows)
 

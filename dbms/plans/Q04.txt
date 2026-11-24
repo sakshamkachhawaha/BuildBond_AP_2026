@@ -1,36 +1,36 @@
 == Q04
                                                                                QUERY PLAN                                                                                
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Sort  (cost=2880.05..2904.05 rows=9600 width=179) (actual time=15.333..15.492 rows=8000.00 loops=1)
+ Sort  (cost=2880.05..2904.05 rows=9600 width=179) (actual time=34.528..34.893 rows=8000.00 loops=1)
    Sort Key: p.created_at DESC, p.id DESC
    Sort Method: quicksort  Memory: 1775kB
    Buffers: shared hit=15841
-   ->  HashAggregate  (cost=2125.07..2245.07 rows=9600 width=179) (actual time=13.827..14.373 rows=8000.00 loops=1)
+   ->  HashAggregate  (cost=2125.07..2245.07 rows=9600 width=179) (actual time=30.805..32.323 rows=8000.00 loops=1)
          Group Key: p.id, u.name
          Batches: 1  Memory Usage: 2073kB
          Buffers: shared hit=15838
-         ->  Hash Join  (cost=614.31..2053.07 rows=9600 width=179) (actual time=4.523..11.304 rows=24001.00 loops=1)
+         ->  Hash Join  (cost=614.31..2053.07 rows=9600 width=179) (actual time=9.269..25.202 rows=24001.00 loops=1)
                Hash Cond: (p.client_id = u.id)
                Buffers: shared hit=15838
-               ->  Hash Right Join  (cost=341.32..1754.87 rows=9600 width=172) (actual time=3.887..8.915 rows=24001.00 loops=1)
+               ->  Hash Right Join  (cost=341.32..1754.87 rows=9600 width=172) (actual time=7.726..19.661 rows=24001.00 loops=1)
                      Hash Cond: (m.project_id = p.id)
                      Buffers: shared hit=15715
-                     ->  Seq Scan on milestones m  (cost=0.00..1256.01 rows=60001 width=8) (actual time=0.007..1.916 rows=60001.00 loops=1)
+                     ->  Seq Scan on milestones m  (cost=0.00..1256.01 rows=60001 width=8) (actual time=0.009..4.433 rows=60001.00 loops=1)
                            Buffers: shared hit=656
-                     ->  Hash  (cost=301.32..301.32 rows=3200 width=168) (actual time=3.874..3.874 rows=8000.00 loops=1)
+                     ->  Hash  (cost=301.32..301.32 rows=3200 width=168) (actual time=7.705..7.706 rows=8000.00 loops=1)
                            Buckets: 8192 (originally 4096)  Batches: 1 (originally 1)  Memory Usage: 1656kB
                            Buffers: shared hit=15059
-                           ->  Index Scan using projects_open_idx on projects p  (cost=0.28..301.32 rows=3200 width=168) (actual time=0.005..3.145 rows=8000.00 loops=1)
+                           ->  Index Scan using projects_open_idx on projects p  (cost=0.28..301.32 rows=3200 width=168) (actual time=0.010..6.340 rows=8000.00 loops=1)
                                  Index Searches: 1
                                  Buffers: shared hit=15059
-               ->  Hash  (cost=189.66..189.66 rows=6666 width=15) (actual time=0.630..0.630 rows=6667.00 loops=1)
+               ->  Hash  (cost=189.66..189.66 rows=6666 width=15) (actual time=1.530..1.530 rows=6667.00 loops=1)
                      Buckets: 8192  Batches: 1  Memory Usage: 386kB
                      Buffers: shared hit=123
-                     ->  Seq Scan on users u  (cost=0.00..189.66 rows=6666 width=15) (actual time=0.002..0.320 rows=6667.00 loops=1)
+                     ->  Seq Scan on users u  (cost=0.00..189.66 rows=6666 width=15) (actual time=0.009..0.894 rows=6667.00 loops=1)
                            Buffers: shared hit=123
  Planning:
    Buffers: shared hit=87
- Planning Time: 0.151 ms
- Execution Time: 15.651 ms
+ Planning Time: 0.379 ms
+ Execution Time: 35.293 ms
 (31 rows)
 

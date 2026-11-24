@@ -1,9 +1,9 @@
 == Q31
                                                                       QUERY PLAN                                                                      
 ------------------------------------------------------------------------------------------------------------------------------------------------------
- Aggregate  (cost=12.32..12.34 rows=1 width=4) (actual time=0.003..0.003 rows=1.00 loops=1)
+ Aggregate  (cost=12.34..12.35 rows=1 width=4) (actual time=0.006..0.007 rows=1.00 loops=1)
    Buffers: shared hit=3
-   ->  Index Scan using milestones_project_position_key on milestones  (cost=0.29..12.32 rows=2 width=0) (actual time=0.003..0.003 rows=0.00 loops=1)
+   ->  Index Scan using milestones_project_position_key on milestones  (cost=0.29..12.33 rows=2 width=0) (actual time=0.005..0.005 rows=0.00 loops=1)
          Index Cond: (project_id = 90)
          Filter: (status <> 'RELEASED'::text)
          Rows Removed by Filter: 2
@@ -11,7 +11,7 @@
          Buffers: shared hit=3
  Planning:
    Buffers: shared hit=3
- Planning Time: 0.013 ms
- Execution Time: 0.007 ms
+ Planning Time: 0.027 ms
+ Execution Time: 0.013 ms
 (12 rows)
 

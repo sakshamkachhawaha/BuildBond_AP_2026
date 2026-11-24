@@ -1,13 +1,13 @@
 == Q17
                                                                       QUERY PLAN                                                                      
 ------------------------------------------------------------------------------------------------------------------------------------------------------
- Sort  (cost=27.91..27.92 rows=2 width=77) (actual time=0.003..0.003 rows=0.00 loops=1)
+ Sort  (cost=27.91..27.92 rows=2 width=77) (actual time=0.007..0.007 rows=0.00 loops=1)
    Sort Key: l.created_at, l.id
    Sort Method: quicksort  Memory: 25kB
    Buffers: shared hit=2
-   ->  Nested Loop Left Join  (cost=0.58..27.90 rows=2 width=77) (actual time=0.002..0.002 rows=0.00 loops=1)
+   ->  Nested Loop Left Join  (cost=0.58..27.90 rows=2 width=77) (actual time=0.005..0.006 rows=0.00 loops=1)
          Buffers: shared hit=2
-         ->  Index Scan using ledger_project_idx on ledger_entries l  (cost=0.29..11.29 rows=2 width=57) (actual time=0.002..0.002 rows=0.00 loops=1)
+         ->  Index Scan using ledger_project_idx on ledger_entries l  (cost=0.29..11.29 rows=2 width=57) (actual time=0.005..0.005 rows=0.00 loops=1)
                Index Cond: (project_id = 20005)
                Index Searches: 1
                Buffers: shared hit=2
@@ -16,7 +16,7 @@
                Index Searches: 0
  Planning:
    Buffers: shared hit=26
- Planning Time: 0.046 ms
- Execution Time: 0.005 ms
+ Planning Time: 0.131 ms
+ Execution Time: 0.016 ms
 (17 rows)
 
